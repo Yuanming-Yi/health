@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pers.yang.mapper.CheckGroupMapper">
+
+    <!--===============================insert========================================-->
+    <!--添加检查组信息-->
+    <insert id="addCheckGroup" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into t_checkgroup values(null, #{code}, #{name}, #{helpCode}, #{sex}, #{remark}, #{attention})
+    </insert>
+
+    <!--===============================delete========================================-->
+    <!--删除检查组和检查项中间表关联关系-->
+    <delete id="deleteCheckGroupAndCheckItem">
+        delete from t_checkgroup_checkitem where checkgroup_id = #{id}
+    </delete>
+    <!--通过id删除检查组-->
+    <delete id="deleteCheckGroupById">
+        delete from t_checkgroup where id = #{id}
+    </delete>
+    <!--删除检查组和检查项关联关系-->
+    <delete id="deleteAssociation">
+        delete from t_checkgroup_checkitem where checkgroup_id = #{id}
+    </delete>
+
+    <!--添加检查组和检查项关联信息-->
+    <insert id="addCheckGroupAndCheckItem">
+        insert into t_checkgroup_checkitem VALUES
+        <foreach collection="checkitemIds" item="checkitemId" separator=",">
+            (#{id}, #{checkitemId})
+        </foreach>
+    </insert>
+
+    <!--===============================update=======================================-->
+    <!--更新检查组信息-->
+    <update id="updateCheckGroup">
+        update t_checkgroup
+        <set>
+            <if test="code != null and code.trim() != ''">
+                code = #{code},
+            </if>
+            <if test="name != null and name.trim() != ''">
+                name = #{name},
+            </if>
+            <if test="helpCode != null and helpCode.trim() != ''">
+                helpCode = #{helpCode},
+            </if>
+            <if test="sex != null and sex.trim() != ''">
+                sex = #{sex},
+            </if>
+            <if test="remark != null and remark.trim() != ''">
+                remark = #{remark},
+            </if>
+            <if test="attention != null and attention.trim() != ''">
+                attention = #{attention},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <!--===============================select=======================================-->
+    <!--通过条件分页查询检查组-->
+    <select id="findCheckGroupByCondition" resultType="pers.yang.pojo.CheckGroup">
+        select * from t_checkgroup
+        <where>
+            <if test="queryString != null and queryString.trim() != ''">
+                code = #{queryString} or name like '%' #{queryString} '%' or helpCode = #{queryString}
+            </if>
+        </where>
+    </select>
+    <!--查询所有的检查组信息-->
+    <select id="findAllCheckGroups" resultType="pers.yang.pojo.CheckGroup">
+        select * from t_checkgroup
+    </select>
+</mapper>

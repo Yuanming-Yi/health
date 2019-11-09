@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pers.yang.mapper.PermissionMapper">
+    <!--====================================insert=================================================-->
+    <insert id="addPermission">
+        insert into t_permission values(null, #{name}, #{keyword}, #{description})
+    </insert>
+
+
+    <!--====================================delete=================================================-->
+    <delete id="deletePermission">
+        delete from t_permission where id = #{id}
+    </delete>
+
+
+    <!--====================================update=================================================-->
+    <update id="editPermission">
+        update t_permission set name = #{name}, keyword = #{keyword}, description = #{description} where id = #{id}
+    </update>
+
+
+
+    
+    <!--====================================select=================================================-->
+    <!--查询权限列表-->
+    <select id="findPermissionByPage" resultType="Permission">
+        select * from t_permission
+        <where>
+            <if test="queryString != null and queryString.trim() != ''">
+                name like '%' #{queryString} '%'
+            </if>
+        </where>
+    </select>
+
+    <!--查询id被引用数量-->
+    <select id="findPermissionCountOfUsed" resultType="Integer">
+        select count(permission_id) from t_role_permission where permission_id = #{id} limit 1
+    </select>
+</mapper>

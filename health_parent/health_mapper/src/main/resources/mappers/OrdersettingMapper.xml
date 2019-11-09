@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pers.yang.mapper.OrdersettingMapper">
+    <!--============================================insert==================================================================-->
+    <!--添加预约信息-->
+    <insert id="addOrdersetting">
+        insert into t_ordersetting values(null, #{orderDate}, #{number}, #{reservations})
+    </insert>
+
+
+    <!--============================================delete==================================================================-->
+
+    <!--============================================update==================================================================-->
+    <!--通过日期更改预约信息-->
+    <update id="updateOrdersettingByDate">
+        update t_ordersetting set number = #{number} where orderDate = #{orderDate}
+    </update>
+
+    <!--修改预约剩余座位-->
+    <update id="updateReservationsByOrderDate">
+        update t_ordersetting set reservations = reservations + 1 where orderDate = #{orderDate}
+    </update>
+
+    <!--============================================select==================================================================-->
+    <!--通过日期查询预约信息数量-->
+    <select id="findOrdersettingCountByDate" resultType="java.lang.Long">
+        select count(id) from t_ordersetting where orderDate = #{orderDate}
+    </select>
+    <!--通过年月查询预约信息-->
+    <select id="findOrdersettingByMonth" resultType="pers.yang.pojo.OrderSetting">
+        select * from t_ordersetting where orderDate between #{startDate} and #{endDate}
+    </select>
+
+    <!--通过日期查询预约信息-->
+    <select id="findOrdersettingByDate" resultType="OrderSetting">
+        select * from t_ordersetting where orderDate = #{orderDate}
+    </select>
+</mapper>

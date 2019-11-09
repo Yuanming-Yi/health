@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--配置连接池配置信息-->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <!--最大连接数-->
+        <property name="maxTotal" value="200"/>
+        <!--最大空闲数-->
+        <property name="maxIdle" value="50"/>
+        <!--检查取出连接数可用-->
+        <property name="testOnBorrow" value="true"/>
+        <!--检查归还连接数可用-->
+        <property name="testOnReturn" value="true"/>
+    </bean>
+
+    <!--配置连接池-->
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+        <!--连接池配置信息-->
+        <constructor-arg name="poolConfig" ref="jedisPoolConfig"/>
+        <!--主机-->
+        <constructor-arg name="host" value="192.168.7.10"/>
+        <!--端口号-->
+        <constructor-arg name="port" value="6379"/>
+        <!--超时时间-->
+        <constructor-arg name="timeout" value="30000"/>
+    </bean>
+
+</beans>

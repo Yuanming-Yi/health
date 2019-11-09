@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <!--注解扫描包-->
+    <!--<context:component-scan base-package="pers.yang.service.impl"/>-->
+
+    <!--dubbo配置-->
+    <!--配置服务名称-->
+    <dubbo:application name="health_service"/>
+    <!--配置注册中心地址-->
+    <dubbo:registry address="zookeeper://localhost:2181"/>
+    <!--配置协议-->
+    <dubbo:protocol name="dubbo" port="20880"/>
+    <!--暴露接口-->
+    <dubbo:annotation package="pers.yang.service"/>
+</beans>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--开始注解包扫描-->
+    <context:component-scan base-package="pers.yang.job"/>
+
+    <!--注册JobDetail-->
+    <bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!--目标对象-->
+        <property name="targetObject" ref="cleanImageJob"/>
+        <!--目标方法-->
+        <property name="targetMethod" value="cleanImg"/>
+    </bean>
+
+    <!--注册触发器，指定任务触发时间-->
+    <bean id="cleanImageTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <!--注入JobDetail-->
+        <property name="jobDetail" ref="jobDetail"/>
+        <property name="cronExpression">
+            <value>0 23 15 1 11 ?</value>
+        </property>
+    </bean>
+
+    <!--注册任务调度工厂-->
+    <bean id="schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="cleanImageTrigger"/>
+            </list>
+        </property>
+    </bean>
+</beans>

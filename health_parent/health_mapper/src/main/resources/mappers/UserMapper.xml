@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pers.yang.mapper.UserMapper">
+    <!--==========================================select========================================================================-->
+    <!--通过用户名查询用户信息-->
+    <select id="findUserByUsername" resultMap="findUserByUsernameResultMap">
+        SELECT
+            u.*, r.id rid, r.keyword rkeyword, p.id pid, p.keyword pkeyword
+        FROM
+            t_user u
+        INNER JOIN t_user_role ur ON ur.user_id = u.id
+        INNER JOIN t_role r ON r.id = ur.role_id
+        INNER JOIN t_role_permission rp ON rp.role_id = r.id
+        INNER JOIN t_permission p ON p.id = rp.permission_id
+        WHERE
+            username = #{username}
+    </select>
+    <resultMap id="findUserByUsernameResultMap" type="User" autoMapping="true">
+        <id property="id" column="id"/>
+        <collection property="roles" javaType="java.util.Set" ofType="Role" autoMapping="true">
+            <id column="rid" property="id"/>
+            <result column="rkeyword" property="keyword"/>
+            <collection property="permissions" javaType="java.util.Set" ofType="Permission" autoMapping="true">
+                <id column="pid" property="id"/>
+                <result column="pkeyword" property="keyword"/>
+            </collection>
+        </collection>
+    </resultMap>
+</mapper>
