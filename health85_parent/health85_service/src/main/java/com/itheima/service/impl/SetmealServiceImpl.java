@@ -1,6 +1,7 @@
 package com.itheima.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.itheima.constant.RedisConstant;
@@ -12,6 +13,7 @@ import com.itheima.pojo.CheckGroup;
 import com.itheima.pojo.CheckItem;
 import com.itheima.pojo.Setmeal;
 import com.itheima.service.SetmealService;
+import com.itheima.utils.SerializeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import redis.clients.jedis.JedisPool;
 
@@ -41,11 +43,11 @@ public class SetmealServiceImpl implements SetmealService {
         //新增套餐
         setmealMapper.add(setmeal);
         //设置套餐和检查组的中间表关系
-        setSetmealAndCheckGroup(checkGroupIds,setmeal.getId());
+        setSetmealAndCheckGroup(checkGroupIds, setmeal.getId());
 
-        if (setmeal.getImg()!=null){
+        if (setmeal.getImg() != null) {
             //将保存到数据库中的图片存入到redis的set集合中
-            jedisPool.getResource().sadd(RedisConstant.SETMEAL_PIC_DB_RESOURCES,setmeal.getImg());
+            jedisPool.getResource().sadd(RedisConstant.SETMEAL_PIC_DB_RESOURCES, setmeal.getImg());
         }
 
 
@@ -53,8 +55,8 @@ public class SetmealServiceImpl implements SetmealService {
 
     private void setSetmealAndCheckGroup(Integer[] checkGroupIds, Integer id) {
 
-        if (checkGroupIds!=null && checkGroupIds.length>0){
-            setmealMapper.setSetmealAndCheckGroup(checkGroupIds,id);
+        if (checkGroupIds != null && checkGroupIds.length > 0) {
+            setmealMapper.setSetmealAndCheckGroup(checkGroupIds, id);
         }
 
     }
@@ -62,7 +64,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     public PageResult findPage(Integer currentPage, Integer pageSize, String queryString) {
 
-        PageHelper.startPage(currentPage,pageSize);
+        PageHelper.startPage(currentPage, pageSize);
 
         //条件查询套餐数据
         List<Setmeal> setmealList = setmealMapper.findByCondition(queryString);
@@ -70,20 +72,35 @@ public class SetmealServiceImpl implements SetmealService {
         //数据包装
         PageInfo<Setmeal> pageInfo = new PageInfo<>(setmealList);
 
-        return new PageResult(pageInfo.getTotal(),pageInfo.getList());
+        return new PageResult(pageInfo.getTotal(), pageInfo.getList());
     }
 
     /**
      * 查询所有套餐
+     *
      * @return
      */
     @Override
     public List<Setmeal> findSetmealAll() {
-        return setmealMapper.findSetmealAll();
+        //缓存中获取
+        String setMalList = jedisPool.getResource().get("SetMealAll");
+        //把list转化为string类型存储
+        List<Setmeal> setMealListsRe = JSON.parseArray(setMalList, Setmeal.class);
+        if (setMealListsRe == null) {
+            //数据库中查找
+            List<Setmeal> setMealListDB = setmealMapper.findSetmealAll();
+            //把list转化为string类型存储
+            jedisPool.getResource().set("SetMealAll", JSON.toJSON(setMealListDB).toString());
+            return setMealListDB;
+        }
+
+        return setMealListsRe;
+
     }
 
     /**
      * 通过id查询setmeal
+     *
      * @param id
      * @return
      */
@@ -91,28 +108,33 @@ public class SetmealServiceImpl implements SetmealService {
     public Setmeal findById(Integer id) {
         return setmealMapper.findById(id);
     }*/
-
     @Override
     public Setmeal findById(Integer id) {
-
-        Setmeal setmeal = setmealMapper.findSetmealById(id);
-        //通过套餐的id查询套餐对应的检查组集合
-        List<CheckGroup> checkGroups = checkGroupMapper.findCheckGroupBySetmealId(setmeal.getId());
-        //将查询出来的检查组的信息封装到套餐对象中
-        setmeal.setCheckGroups(checkGroups);
-        //将检查组遍历，通过每一个检查组的id查询对应的检查项
-        for (CheckGroup checkGroup : checkGroups) {
-            List<CheckItem> checkItems = checkItemMapper.findCheckItemByCheckGroupId(checkGroup.getId());
-            //将检查项的集合封装到检查组中
-            checkGroup.setCheckItems(checkItems);
-
+        String key = "setmeal" + id;
+        //从缓存中获取套餐详细信息
+        Setmeal setMealRe = (Setmeal) SerializeUtil.unSerialize(jedisPool.getResource().get(key.getBytes()));
+        if (setMealRe == null) {
+            Setmeal setMealDb = setmealMapper.findSetmealById(id);
+            //通过套餐的id查询套餐对应的检查组集合
+            List<CheckGroup> checkGroups = checkGroupMapper.findCheckGroupBySetmealId(setMealDb.getId());
+            //将查询出来的检查组的信息封装到套餐对象中
+            setMealDb.setCheckGroups(checkGroups);
+            //将检查组遍历，通过每一个检查组的id查询对应的检查项
+            for (CheckGroup checkGroup : checkGroups) {
+                List<CheckItem> checkItems = checkItemMapper.findCheckItemByCheckGroupId(checkGroup.getId());
+                //将检查项的集合封装到检查组中
+                checkGroup.setCheckItems(checkItems);
+            }
+            //把实体类对象转化为string类型存储       序列化
+            jedisPool.getResource().set(key.getBytes(), SerializeUtil.serialize(setMealDb));
+            return setMealDb;
         }
-
-        return setmeal;
+        return setMealRe;
     }
 
     /**
      * 查询套餐占比
+     *
      * @return
      */
     @Override
@@ -127,8 +149,8 @@ public class SetmealServiceImpl implements SetmealService {
         }
 
         Map<String, List> map = new HashMap<>();
-        map.put("setmealNames",setmealNames);
-        map.put("setmealCounts",list);
+        map.put("setmealNames", setmealNames);
+        map.put("setmealCounts", list);
 
         return map;
     }
