@@ -87,6 +87,7 @@ public class ReportController {
     @RequestMapping("exportBusinessReport")
     public void exportBusinessReport(HttpSession session, HttpServletResponse response){
 
+
         try {
             //获取模板的路径
 //        String realPath = session.getServletContext().getRealPath("template/report_template.xlsx");
@@ -169,4 +170,36 @@ public class ReportController {
 
 
     }
+
+
+    /***
+     * 会员性别统计饼图
+     */
+    @RequestMapping("getReportMemberSex")
+    public Result getReportMemberSex(){
+        try {
+            Map map=memberService.getReportMemberSex();
+            return new Result(true,MessageConstant.GET_MEMBER_NUMBER_REPORT_SUCCESS,map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,MessageConstant.GET_MEMBER_NUMBER_REPORT_FAIL);
+        }
+    }
+
+    /***
+     * 会员年龄统计饼图
+     */
+    @RequestMapping("getReportMemberAge")
+    public Result getReportMemberAge(){
+        try {
+            Map map=memberService.getReportMemberAge();
+            return new Result(true,MessageConstant.GET_MEMBER_NUMBER_REPORT_SUCCESS,map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result(false,MessageConstant.GET_MEMBER_NUMBER_REPORT_FAIL);
+        }
+    }
+
+
+
 }
