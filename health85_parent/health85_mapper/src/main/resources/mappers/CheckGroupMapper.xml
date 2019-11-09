@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.CheckGroupMapper">
+
+    <!--新增检查组-->
+    <insert id="add" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert  into  t_checkgroup values(null,#{code},#{name},#{helpCode},#{sex},#{remark},#{attention})
+    </insert>
+
+    <!--新增中间表数据-->
+    <!--<insert id="setCheckGroupAndCheckItem">
+        insert into t_checkgroup_checkitem values(#{id},#{checkItemId})
+    </insert>-->
+    <insert id="setCheckGroupAndCheckItem">
+        insert into t_checkgroup_checkitem values
+        <foreach collection="checkItemIds" item="checkItemId" separator=",">
+            (#{id},#{checkItemId})
+        </foreach>
+    </insert>
+
+    <!--查询总计录数-->
+    <!--<select id="findCount" resultType="Long">
+        select count(*) from t_checkgroup
+        <where>
+            <if test="queryString !=null and queryString.trim()!=''">
+                code = #{queryString} or name like '%' #{queryString} '%' or helpCode = #{queryString}
+            </if>
+        </where>
+    </select>-->
+
+    <!--查询分页数据-->
+   <!-- <select id="findByCondition" resultType="CheckGroup">
+        select * from t_checkgroup
+        <where>
+            <if test="queryString !=null and queryString.trim()!=''">
+                code = #{queryString} or name like '%' #{queryString} '%' or helpCode = #{queryString}
+            </if>
+        </where>
+        limit #{firstResult} , #{pageSize}
+    </select>-->
+
+    <select id="findByCondition" resultType="CheckGroup">
+        select * from t_checkgroup
+        <where>
+            <if test="queryString !=null and queryString.trim()!=''">
+                code = #{queryString} or name like '%' #{queryString} '%' or helpCode = #{queryString}
+            </if>
+        </where>
+    </select>
+
+    <!--通过id查询检查组-->
+    <select id="findById" resultType="CheckGroup">
+        select * from t_checkgroup where id = #{id}
+    </select>
+
+    <!--删除中间表数据-->
+    <delete id="deleteAssociation">
+        delete from t_checkgroup_checkitem where checkgroup_id = #{id}
+    </delete>
+
+    <!--编辑更新检查组数据-->
+    <update id="edit">
+        update t_checkgroup
+        <set>
+            <if test="code!=null">
+                code = #{code},
+            </if>
+            <if test="name!=null">
+                name = #{name},
+            </if>
+            <if test="helpCode!=null">
+                helpCode = #{helpCode},
+            </if>
+            <if test="sex!=null">
+                sex = #{sex},
+            </if>
+            <if test="remark!=null">
+                remark = #{remark},
+            </if>
+            <if test="attention!=null">
+                attention = #{attention}
+            </if>
+        </set>
+        where id = #{id}
+
+    </update>
+
+    <!--查询套餐和检查组中间表，判断有没有被套餐引用-->
+    <select id="findCountById" resultType="Integer">
+        select count(checkgroup_id) from t_setmeal_checkgroup where checkgroup_id = #{id}
+    </select>
+
+    <!--删除检查组-->
+    <delete id="deleteById">
+        delete from t_checkgroup where id = #{id}
+    </delete>
+
+    <!--查询所有检查组-->
+    <select id="findAll" resultType="CheckGroup">
+        select * from t_checkgroup
+    </select>
+
+    <!--<resultMap id="checkGroupResultMap" type="CheckGroup">
+        <collection property="checkItems" javaType="List" ofType="CheckItem" select="com.itheima.mapper.CheckItemMapper.findCheckItemByCheckGroupId" column="checkGroupId = id"></collection>
+    </resultMap>
+
+
+    <select id="findCheckGroupBySetmealId" resultMap="checkGroupResultMap">
+        select * from t_checkgroup where id in(select checkgroup_id from t_setmeal_checkgroup where setmeal_id = #{setmealId})
+    </select>-->
+
+    <select id="findCheckGroupBySetmealId" resultType="CheckGroup">
+        select * from t_checkgroup where id in(select checkgroup_id from t_setmeal_checkgroup where setmeal_id = #{id})
+    </select>
+
+
+
+</mapper>

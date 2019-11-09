@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes" value="application/json"></property>
+                <property name="fastJsonConfig" ref="fastJsonConfig"></property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <bean id="fastJsonConfig" class="com.alibaba.fastjson.support.config.FastJsonConfig">
+        <property name="serializerFeatures">
+            <array>
+                <!--
+                    将对象响应为json数据，如果对象中的某个属性的值为null，那么在将该对象装换为json的时候，该属性是不显示
+                    WriteMapNullValue： 表示即使某个属性为null,也需要在json数据中显示
+                -->
+                <value>WriteMapNullValue</value>
+                <!--
+                    在json数据中时间的类型默认是long，该配置可以时间的类型格式化为"yyyy-MM-dd"
+                -->
+                <value>WriteDateUseDateFormat</value>
+            </array>
+        </property>
+    </bean>
+
+    <!--配置消费者的应用名称-->
+    <dubbo:application name="health85-web"></dubbo:application>
+    <!--配置注册中心-->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"></dubbo:registry>
+    <!--配置注解扫描-->
+    <dubbo:annotation package="com.itheima"></dubbo:annotation>
+    <!--配置启动时不检查提供者以及配置超时时间-->
+    <dubbo:consumer check="false" timeout="600000"></dubbo:consumer>
+
+    <!--配置文件上传解析器-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--设置上传文件大小为10m-->
+        <property name="maxUploadSize" value="104857600"></property>
+        <!--设置编码集-->
+        <property name="defaultEncoding" value="utf-8"></property>
+    </bean>
+
+
+    <!--引入redis的配置文件-->
+    <import resource="classpath:applicationContext-*.xml"></import>
+
+</beans>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.UserMapper">
+
+    <resultMap id="userAndRoleAndPermission" type="User" autoMapping="true">
+        <id column="id" property="id"></id>
+        <!--将角色封装到user中-->
+        <collection property="roles" javaType="java.util.Set" ofType="Role" autoMapping="true">
+            <id column="rid" property="id"></id>
+            <result column="rkeyword" property="keyword"></result>
+            <!--将权限封装到role中-->
+            <collection property="permissions" javaType="java.util.Set" ofType="Permission" autoMapping="true">
+                <id column="pid" property="id"></id>
+                <result column="pkeyword" property="keyword"></result>
+            </collection>
+        </collection>
+
+    </resultMap>
+    
+    <select id="findByUsername" resultMap="userAndRoleAndPermission">
+      SELECT
+            u.*,r.id rid,r.keyword rkeyword,p.id pid,p.keyword pkeyword
+        FROM
+            t_user u
+        INNER JOIN t_user_role ur ON u.id = ur.user_id
+        inner join t_role r on r.id = ur.role_id
+        INNER JOIN t_role_permission rp on rp.role_id = r.id
+        INNER JOIN t_permission p on p.id = rp.permission_id
+        WHERE
+            u.username = #{username}
+    </select>
+
+</mapper>
