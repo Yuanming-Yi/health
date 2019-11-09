@@ -34,4 +34,19 @@
         select count(id) from t_member where regTime >= #{date}
     </select>
 
+    <select id="findMaleMember" resultType="Integer">
+        SELECT count(id) from t_member where sex=#{sex}
+    </select>
+
+    <select id="findMemberCountByAge" resultType="Integer">
+        SELECT count(t.age) from
+        (SELECT  TIMESTAMPDIFF(YEAR, birthday, #{date}) age from t_member) t  where t.age BETWEEN #{startAge} and #{endAge}
+    </select>
+
+    <select id="findMemberCountByMostAge" resultType="Integer">
+        SELECT count(t.age) from
+        (SELECT  TIMESTAMPDIFF(YEAR, birthday, #{date}) age from t_member) t  where t.age &gt; #{startAge}
+    </select>
+
+
 </mapper>

@@ -10,4 +10,8 @@ public interface MemberService {
     void add(Member member);
 
     Map getMemberReport();
+
+    Map getReportMemberSex();
+
+    Map getReportMemberAge();
 }
