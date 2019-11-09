@@ -15,4 +15,10 @@ public interface MemberMapper {
     Integer findTotalMember();
 
     Integer findNewMemberCountAfterDate(@Param("date")String date);
+
+    Integer findMaleMember(@Param("sex")int i);
+
+    Integer findMemberCountByAge(@Param("startAge")int i,@Param("endAge") int i1, @Param("date")String dateformate);
+
+    Integer findMemberCountByMostAge(@Param("startAge")int i, @Param("date")String dateformate);
 }
