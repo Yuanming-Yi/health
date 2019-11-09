@@ -2,8 +2,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
     <context:component-scan base-package="com.itheima.jobs"></context:component-scan>
 
@@ -11,14 +12,14 @@
         配置一个任务详情：执行哪个类中的哪个方法
     -->
     <bean id="jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="targetObject" ref="clearImgJob"></property>
-        <property name="targetMethod" value="clearImg"></property>
+        <property name="targetObject" ref="clearOrderDateJob"></property>
+        <property name="targetMethod" value="clearOrderDate"></property>
     </bean>
 
     <!--配置一个触发器：指定什么时候去执行任务-->
     <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
         <property name="cronExpression">
-            <value>0 14 10 1 1,11 ?</value>
+            <value>0/5 * * * * ?</value>
         </property>
         <property name="jobDetail" ref="jobDetail"></property>
     </bean>
@@ -32,5 +33,13 @@
         </property>
     </bean>
 
-
+    <!--5.创建一个消费者-->
+    <!--5.1：应用名-->
+    <dubbo:application name="health-job"/>
+    <!--5.2：注册中心-->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+    <!--5.3：开启注解扫描-->
+    <dubbo:annotation package="com.itheima.jobs"/>
+    <!--5.4：关闭自动检测以及设置超时时间-->
+    <dubbo:consumer check="false" timeout="60000"/>
 </beans>

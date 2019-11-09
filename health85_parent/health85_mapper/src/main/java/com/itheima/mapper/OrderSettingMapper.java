@@ -23,4 +23,6 @@ public interface OrderSettingMapper {
     OrderSetting findByOrderDate(@Param("date")Date date);
 
     void updateReservationsByOrderDate(@Param("date")Date date);
+    //定时
+    void quartzClearOverdue(@Param("date")String date);
 }

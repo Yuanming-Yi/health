@@ -6,10 +6,7 @@ import com.itheima.pojo.OrderSetting;
 import com.itheima.service.OrderSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service(interfaceClass = OrderSettingService.class)
 public class OrderSettingServiceImpl implements OrderSettingService {
@@ -71,6 +68,10 @@ public class OrderSettingServiceImpl implements OrderSettingService {
         return orderSettings;
     }
 
+    @Override
+    public void quartzClearOverdue(String date) {
+        orderSettingMapper.quartzClearOverdue(date);
+    }
 
     /**
      * 根据日期更新可预约数量
