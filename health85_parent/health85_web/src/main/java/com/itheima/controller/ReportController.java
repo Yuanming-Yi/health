@@ -11,6 +11,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.xmlbeans.ResourceLoader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletOutputStream;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -36,10 +38,10 @@ public class ReportController {
     private ReportService reportService;
 
     @RequestMapping("getMemberReport")
-    public Result getMemberReport(){
+    public Result getMemberReport(@RequestParam("beginMonth") String beginMonth, @RequestParam("endMonth") String endMonth){
 
         try {
-            Map map = memberService.getMemberReport();
+            Map map = memberService.getMemberReport(beginMonth,endMonth);
             return new Result(true, MessageConstant.GET_MEMBER_NUMBER_REPORT_SUCCESS,map);
         } catch (Exception e) {
             e.printStackTrace();
