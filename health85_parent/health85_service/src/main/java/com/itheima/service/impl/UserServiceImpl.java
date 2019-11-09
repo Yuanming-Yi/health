@@ -6,6 +6,9 @@ import com.itheima.pojo.User;
 import com.itheima.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+import java.util.Map;
+
 @Service(interfaceClass = UserService.class)
 public class UserServiceImpl implements UserService {
 
@@ -17,5 +20,16 @@ public class UserServiceImpl implements UserService {
 
         User user = userMapper.findByUsername(username);
         return user;
+    }
+
+    //
+    @Override
+    public List<Map<String, Object>> findMenuByUsername(String username) {
+        List<Map<String, Object>> menulist = userMapper.findFirstMenuByUsername(username);
+        for (Map<String, Object> map : menulist) {
+            List<Map<String,Object>> children = userMapper.findSecondMenuByUsernameAndPath(username,(String)map.get("path"));
+            map.put("children",children);
+        }
+        return menulist;
     }
 }

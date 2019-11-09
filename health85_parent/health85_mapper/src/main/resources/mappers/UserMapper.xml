@@ -32,4 +32,27 @@
             u.username = #{username}
     </select>
 
+
+    <select id="findFirstMenuByUsername" resultType="Map">
+        SELECT name title,path,icon FROM t_menu WHERE
+        id IN (
+        SELECT menu_id FROM t_role_menu WHERE
+        role_id = (
+        SELECT id FROM t_user WHERE username = #{username}
+        )
+        )
+        AND path LIKE '_'
+    </select>
+
+    <select id="findSecondMenuByUsernameAndPath" resultType="Map">
+        SELECT name title,linkUrl,path,icon FROM t_menu WHERE
+        id IN (
+        SELECT menu_id FROM t_role_menu WHERE
+        role_id = (
+        SELECT id FROM t_user WHERE username = #{username}
+        )
+        )
+        AND path LIKE '/' #{path} '-%'
+    </select>
+
 </mapper>
