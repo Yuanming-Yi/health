@@ -16,8 +16,11 @@ public class ClearOrderDateJob {
     @Reference
     private OrderSettingService orderSettingService;
     public void clearOrderDate() {
-        Date d = new Date();
-        String data = new SimpleDateFormat("yyyy-MM-dd").format(d);
+        Calendar calendar = Calendar.getInstance();
+        //将日历对象往前推1个月
+        calendar.add(Calendar.MONTH,-1);
+        Date time = calendar.getTime();
+        String data = new SimpleDateFormat("yyyy-MM-dd").format(time);
         orderSettingService.quartzClearOverdue(data);
     }
 
