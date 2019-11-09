@@ -3,7 +3,10 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.itheima.mapper.OrderSettingMapper">
-
+    <!--每月最后一天定时删除之前的所有预约列表-->
+    <delete id="quartzClearOverdue">
+        DELETE FROM t_ordersetting WHERE orderDate &lt;= #{date};
+    </delete>
     <!--通过日期查询可预约记录-->
     <select id="findCountByOrderDate" resultType="Integer">
         select count(id) from t_ordersetting where orderDate = #{orderDate}
