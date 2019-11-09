@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.itheima.mapper.MemberMapper;
 import com.itheima.pojo.Member;
 import com.itheima.service.MemberService;
+import com.itheima.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.SimpleDateFormat;
@@ -39,15 +40,11 @@ public class MemberServiceImpl implements MemberService {
     /**
      * 获取过去12个月每月的会员数量
      * @return
+     * @param beginMonth
+     * @param endMonth
      */
     @Override
-    public Map getMemberReport() {
-        //初始化日历对象
-        Calendar calendar = Calendar.getInstance();
-        //将日历对象往前推12个月
-        calendar.add(Calendar.MONTH,-12);
-
-
+    public Map getMemberReport(String beginMonth, String endMonth) {
         //定义一个list封装每一个月的月份
         List<String> months = new ArrayList<>();
 
@@ -57,13 +54,57 @@ public class MemberServiceImpl implements MemberService {
         //定义一个map,用来封装过去的12个月的月份的集合，已经每个月对应的会员数量的集合
         Map<String, List> map = new HashMap<>();
 
-        for (int i = 0; i < 12; i++) {
-            //获取时间
-            Date time = calendar.getTime();
-            //将时间格式化为年份-月份：“2019-08”
-            String date = new SimpleDateFormat("yyyy-MM").format(time);
-            //将每一个月封装到集合中
-            months.add(date);
+        if(beginMonth.equals("null")||endMonth.equals("null") || beginMonth==null || beginMonth.trim().equals("") || endMonth==null || endMonth.trim().equals("") ){
+
+            //初始化日历对象
+            Calendar calendar = Calendar.getInstance();
+            //将日历对象往前推12个月
+            calendar.add(Calendar.MONTH,-12);
+            for (int i = 0; i < 12; i++) {
+                //获取时间
+                Date time = calendar.getTime();
+                //将时间格式化为年份-月份：“2019-08”
+                String date = new SimpleDateFormat("yyyy-MM").format(time);
+                //将每一个月封装到集合中
+                months.add(date);
+
+                calendar.add(Calendar.MONTH,+1);
+            }
+        } else{
+
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+            Date date1 = null;
+            Date date2 = null;
+            try {
+                date1 = sdf.parse(beginMonth);
+                date2 =sdf.parse(endMonth);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            Calendar min = Calendar.getInstance();
+            Calendar max = Calendar.getInstance();
+
+            min.setTime(date1);
+            min.set(min.get(Calendar.YEAR), min.get(Calendar.MONTH), 1);
+
+            max.setTime(date2);
+            max.set(max.get(Calendar.YEAR), max.get(Calendar.MONTH), 2);
+
+
+            Calendar curr = min;
+            while (curr.before(max)) {
+                months.add(sdf.format(curr.getTime()));
+                curr.add(Calendar.MONTH, 1);
+            }
+
+        }
+
+
+        for (int i = 0; i < months.size(); i++) {
+            String date = months.get(i);
 
             //定义每一个月的查询月份的起始值
             String monthBegin = date+"-01";
@@ -74,10 +115,9 @@ public class MemberServiceImpl implements MemberService {
 
             //将每一个月对应的会员数量封装到集合中
             memberCounts.add(memberCount);
-
-            calendar.add(Calendar.MONTH,+1);
-
         }
+
+
 
         map.put("months",months);
         map.put("memberCounts",memberCounts);

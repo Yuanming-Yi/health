@@ -9,7 +9,7 @@ public interface MemberService {
 
     void add(Member member);
 
-    Map getMemberReport();
+    Map getMemberReport(String beginMonth, String endMonth);
 
     Map getReportMemberSex();
 
