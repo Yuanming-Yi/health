@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.mapper.RoleMapper">
+
+    <!--=======================================insert========================================================================-->
+    <!--添加角色-->
+    <insert id="addRole" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into t_role values(null, #{name}, #{keyword}, #{description})
+    </insert>
+    
+    <!--添加角色和权限的关联-->
+    <insert id="addAssociationOfRoleAndPermission">
+        insert into t_role_permission values
+        <foreach collection="ids" item="pid" separator=",">
+            (#{id}, #{pid})
+        </foreach>
+    </insert>
+    
+    <!--添加角色和菜单关联-->
+    <insert id="addAssociationOfRoleAndMenu">
+        insert INTO t_role_menu VALUES 
+        <foreach collection="ids" item="mid" separator=",">
+            (#{id}, #{mid})
+        </foreach>
+    </insert>
+
+
+    <!--=======================================delete========================================================================-->
+    <delete id="deleteRole">
+        delete from t_role where id = #{id}
+    </delete>
+
+    <!--删除角色和权限的关联-->
+    <delete id="deleteAssociationOfRoleAndPermission">
+        delete from t_role_permission where role_id = #{id}
+    </delete>
+
+    <!--删除角色和菜单关联-->
+    <delete id="deleteAssociationOfRoleAndMenu">
+        delete from t_role_menu where role_id = #{id}
+    </delete>
+
+
+
+    <!--=======================================update========================================================================-->
+    <!--编辑角色-->
+    <update id="editRole">
+        update t_role set name = #{name}, keyword = #{keyword}, description = #{description} where id = #{id}
+    </update>
+    
+    
+    <!--=======================================select========================================================================-->
+    <!--分页查询角色列表-->
+    <select id="findRoleByPage" resultType="Role">
+        select * from t_role
+        <where>
+            <if test="queryString != null and queryString.trim() != ''">
+                name like '%' #{queryString} '%'
+            </if>
+        </where>
+    </select>
+
+    <!--查询角色被用户引用数量-->
+    <select id="findRoleCountUsedByUser" resultType="Integer">
+        select count(role_id) from t_user_role where role_id = #{id}
+    </select>
+
+    <!--通过用户查询菜单-->
+    <select id="findMenuByRoleId" resultType="Integer">
+        select rm.menu_id from t_role_menu rm inner join t_menu m on m.id = rm.menu_id where role_id = #{id} and m.parentMenuId is not null
+    </select>
+
+    <!--查询角色列表-->
+    <select id="findAllRoles" resultType="Role">
+        select * from t_role
+    </select>
+
+    <!--通过用户id查询角色-->
+    <select id="findRoleByUserId" resultType="Integer">
+        select role_id from t_user_role where user_id = #{userId}
+    </select>
+</mapper>

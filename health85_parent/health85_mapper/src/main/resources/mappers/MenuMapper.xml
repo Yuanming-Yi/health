@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.mapper.MenuMapper">
+    <!--=====================================select==================================================================-->
+    <select id="findMenuList" resultType="Map">
+        select id, name, level, path, priority from t_menu
+        <where>
+            level = #{level}
+            <if test="id != null and id > 0">
+                and parentMenuId = #{id}
+            </if>
+        </where>
+    </select>
+
+    <!--查询最大path-->
+    <select id="findMaxPathNumber" resultType="Integer">
+        select right(path, 1) from t_menu
+        <where>
+            <if test="pathCondition != null and pathCondition.trim() != ''">
+                path REGEXP #{pathCondition}
+            </if>
+        </where>
+        ORDER BY path desc limit 1
+    </select>
+
+    <!--添加菜单-->
+    <insert id="addMenu">
+        insert into t_menu values(null, #{name}, #{linkUrl}, #{path}, #{priority}, #{icon}, #{description}, #{parentMenuId}, #{level})
+    </insert>
+
+    <!--通过id查询菜单-->
+    <select id="findMenuById" resultType="Menu">
+        select * from t_menu where id = #{id}
+    </select>
+
+    <!--编辑菜单-->
+    <update id="editMenu">
+        update t_menu set name = #{name}, linkUrl = #{linkUrl}, description = #{description} where id = #{id}
+    </update>
+
+    <!--查询菜单被用户引用数量-->
+    <select id="findMenuCountUsedByUser" resultType="Integer">
+        select count(menu_id) from t_role_menu where menu_id = #{id}
+    </select>
+
+    <!--删除菜单-->
+    <delete id="deleteMenu">
+        delete from t_menu where id = #{id}
+    </delete>
+</mapper>
