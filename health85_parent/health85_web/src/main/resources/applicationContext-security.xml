@@ -11,6 +11,7 @@
     <security:http security="none" pattern="/css/**"></security:http>
     <security:http security="none" pattern="/js/**"></security:http>
     <security:http security="none" pattern="/plugins/**"></security:http>
+    <security:http security="none" pattern="/login.html"></security:http>
 
     <!--
         定义相关权限控制
@@ -56,7 +57,7 @@
             logout-success-url属性：退出成功后跳转的url
             invalidate-session属性：清空session
         -->
-        <security:logout logout-url="/logout.do" logout-success-url="/login.html" invalidate-session="true"></security:logout>
+        <security:logout logout-url="/logout.do" logout-success-url="/pages/login.html" invalidate-session="true"></security:logout>
 
     </security:http>
 
